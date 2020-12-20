@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Deploy ARM template",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/azuredeploy/deploy.ps1",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
