@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Deploy
+name: Deploy ARM Template
 
 # Controls when the action will run. 
 on:
@@ -14,7 +14,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  deploy:
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -26,6 +26,11 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - run: type $GITHUB_WORKSPACE\azuredeploy.json
+      - run: type $GITHUB_WORKSPACEazuredeploy.json
+      - run: type $GITHUB_WORKSPACE/azuredeploy.json
+      - run: type azuredeploy.json
         
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
@@ -39,7 +44,7 @@ jobs:
           # Provide the name of a resource group, only required for resource Group deployments.
           resourceGroupName: wuma-backend
           # Specify the path or URL to the Azure Resorce Manager template.
-          template: $GITHUB_WORKSPACE\azuredeploy.json
+          template: $GITHUB_WORKSPACEazuredeploy.json
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
