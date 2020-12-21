@@ -27,11 +27,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      - run: type $GITHUB_WORKSPACE\azuredeploy.json
-      - run: type $GITHUB_WORKSPACEazuredeploy.json
-      - run: type $GITHUB_WORKSPACE/azuredeploy.json
-      - run: type azuredeploy.json
-        
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
@@ -44,7 +39,7 @@ jobs:
           # Provide the name of a resource group, only required for resource Group deployments.
           resourceGroupName: wuma-backend
           # Specify the path or URL to the Azure Resorce Manager template.
-          template: $GITHUB_WORKSPACEazuredeploy.json
+          template: azuredeploy.json
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
