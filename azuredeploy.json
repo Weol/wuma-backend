@@ -77,6 +77,14 @@
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2019-06-01').keys[0].value)]"
             },
             {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName'),'2019-06-01').keys[0].value)]"
+            },
+            {
+                "name": "WEBSITE_CONTENTSHARE",
+                "value": "[toLower(parameters('functionsAppName'))]"
+            },
+            {
               "name": "Project",
               "value": "backend-functions"
             }
@@ -158,5 +166,11 @@
         "options": {}
       }
     }
-  ]
+  ],
+  "outputs": {
+    "functionsAppName": {
+      "type": "string",
+      "value": "[parameters('functionsAppName')]"
+    }
+  }
 }
