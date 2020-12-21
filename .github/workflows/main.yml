@@ -22,9 +22,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - uses: azure/login@v1
+      - name: Login to Azure
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
@@ -47,9 +49,10 @@ jobs:
           # Specifies the name of the resource group deployment to create.
           deploymentName: ${{ env.GITHUB_SHA }}
 
-      - uses: virgil246/secret-manage-action@v1.0
+      - name: Put functions app name secret
+        uses: kornicameister/gh-secrets-action@master
         with:
-          repo: virgil246/secret-manage-action
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: 'FUNCTIONS_APP_NAME' 
-          value: ${{ steps.deploy_template.outputs.functionsAppName }} 
+          repository: kornicameister/gh-secrets-action
+          token: ${{ secrets.GH_PA_TOKEN }}
+          secrets: |
+            FUNCTIONS_APP_NAME: ${{ steps.deploy_template.outputs.functionsAppName }} 
