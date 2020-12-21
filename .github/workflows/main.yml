@@ -22,10 +22,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-        
-      - run: echo $GITHUB_WORKSPACE
-      - run: dir $GITHUB_WORKSPACE
-        
+
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -42,7 +39,7 @@ jobs:
           # Provide the name of a resource group, only required for resource Group deployments.
           resourceGroupName: wuma-backend
           # Specify the path or URL to the Azure Resorce Manager template.
-          template: $GITHUB_WORKSPACE/azuredeploy.json
+          template: $GITHUB_WORKSPACE\azuredeploy.json
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
