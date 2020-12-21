@@ -51,6 +51,13 @@
       "metadata": {
         "description": "The name of the app service plan"
       }
+    },
+    "appInsightsName": {
+      "defaultValue": "[concat('insights', uniqueString(resourceGroup().id))]",
+      "type": "string",
+      "metadata": {
+        "description": "The name of the app insights resource"
+      }
     }
   },
   "resources": [
@@ -68,20 +75,22 @@
       }
     },
     {  
-      "type":"Microsoft.Web/serverfarms",
-      "apiVersion":"2020-06-01",
-      "name":"[parameters('hostingPlanName')]",
-      "location":"[parameters('location')]",
-      "properties":{  
-         "name":"[parameters('hostingPlanName')]",
-         "computeMode":"Dynamic"
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2016-09-01",
+      "name": "[parameters('hostingPlanName')]",
+      "location": "[parameters('location')]",
+      "properties": {  
+         "name": "[parameters('hostingPlanName')]",
+         "computeMode": "Dynamic",
+         "maximumElasticWorkerCount": 1,
+         "targetWorkerCount": 1
       },
       "sku":{  
-         "name":"F1",
-         "tier":"Dynamic",
-         "size":"F1",
-         "family":"F",
-         "capacity":0
+         "name": "Y1",
+         "tier": "Dynamic",
+         "size": "Y1",
+         "family": "Y",
+         "capacity": 1
       }
     },
     {
@@ -95,6 +104,7 @@
       ],
       "kind": "functionapp",
       "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]",
         "siteConfig": {
           "appSettings": [
             {
@@ -131,8 +141,22 @@
                 "IsManualIntegration": true
             }
         }
-    ]
+      ]
     },
+    {
+      "apiVersion": "2015-05-01",
+      "name": "[parameters('appInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "kind": "web",
+      "location": "[parameters('location')]",
+      "tags": {
+          "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('functionsAppName'))]": "Resource"
+      },
+      "properties": {
+          "Application_Type": "web",
+          "ApplicationId": "[parameters('appInsightsName')]"
+      }
+  },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2020-03-01",
