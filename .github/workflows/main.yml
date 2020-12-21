@@ -45,4 +45,4 @@ jobs:
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
-          deploymentName: $env:GITHUB_SHA
+          deploymentName: d8c0f5686384fdd9c9cd0105460c0e82d1a6ad14
