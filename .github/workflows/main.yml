@@ -39,7 +39,7 @@ jobs:
           # Provide the name of a resource group, only required for resource Group deployments.
           resourceGroupName: wuma-backend
           # Specify the path or URL to the Azure Resource Manager template.
-          template: $GITHUB_WORKSPACE/azuredeploy.json
+          template: $GITHUB_WORKSPACE/wuma-backend/azuredeploy.json
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
