@@ -7,6 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: master
+    paths: azuredeploy.json
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,7 +28,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      - name: Deploy Azure Resource Manager (ARM) Template
+      - id: deploy_template
+        name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
           # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'managementgroup', 'subscription'
@@ -44,3 +46,10 @@ jobs:
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
           deploymentName: ${{ env.GITHUB_SHA }}
+
+      - uses: virgil246/secret-manage-action@v1.0
+        with:
+          repo: virgil246/secret-manage-action
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: 'FUNCTIONS_APP_NAME' 
+          value: ${{ steps.deploy_template.outputs.functionsAppName }} 
