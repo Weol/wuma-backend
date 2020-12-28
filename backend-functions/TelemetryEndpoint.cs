@@ -22,8 +22,14 @@ namespace Rahka.Wuma
         [FunctionName("PutTelemetry")]
         public async Task<IActionResult> Put(
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "telemetry")] HttpServerTelemetryModel telemetry,
+            HttpRequest request,
             ILogger log)
         {
+            if (telemetry.Type == ServerType.Singleplayer)
+            {
+                telemetry.Ip = request.HttpContext.Connection.RemoteIpAddress.ToString();
+            }
+
             var model = new CosmosServerTelemetryModel
             {
                 Id = telemetry.Ip,
