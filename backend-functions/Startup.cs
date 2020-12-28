@@ -1,5 +1,5 @@
 ﻿using System;
-using azure_functions_cosmosclient;
+using Rahka.Wuma;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
-namespace azure_functions_cosmosclient
+namespace Rahka.Wuma
 {
     public class Startup : FunctionsStartup
     {
@@ -25,7 +25,7 @@ namespace azure_functions_cosmosclient
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddSingleton(s => {
-                var connectionString = Configuration["CosmosDBConnectionString"];
+                var connectionString = Configuration.GetConnectionString("CosmosDBConnectionString");
 
                 if (string.IsNullOrEmpty(connectionString))
                 {

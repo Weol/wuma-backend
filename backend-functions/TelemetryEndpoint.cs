@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -8,31 +6,25 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Cosmos;
-using System.Linq;
 
 namespace Rahka.Wuma
 {
     public class TelemetryEndpoint
     {
-        private readonly CosmosClient _cosmosClient;
+        private readonly Container _container;
 
         public TelemetryEndpoint(CosmosClient cosmosClient)
         {
-            _cosmosClient = cosmosClient;
+            _container = cosmosClient.GetDatabase("wuma").GetContainer("telemetry");
         }
 
         [FunctionName("PutTelemetry")]
-        public IActionResult Put(
+        public async Task<IActionResult> Put(
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "telemetry")] HttpServerTelemetryModel telemetry,
-            [CosmosDB(
-                databaseName: "wuma",
-                collectionName: "telemetry",
-                ConnectionStringSetting = "CosmosDBConnectionString")] out CosmosServerTelemetryModel document,
             ILogger log)
         {
-            document = new CosmosServerTelemetryModel
+            var model = new CosmosServerTelemetryModel
             {
                 Id = telemetry.Ip,
                 Name = telemetry.Name,
@@ -40,7 +32,9 @@ namespace Rahka.Wuma
                 TTL = 3600 * 12 * 3
             };
 
-            log.LogInformation($"Telemetry from {document.Type.ToString().ToLower()} server {document.Id} ({document.Name})");
+            await _container.UpsertItemAsync<CosmosServerTelemetryModel>(model);
+
+            log.LogInformation($"Telemetry from {model.Type.ToString().ToLower()} server {model.Id} ({model.Name})");
 
             return new AcceptedResult();
         }
@@ -50,9 +44,7 @@ namespace Rahka.Wuma
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "telemetry")] HttpRequest request,
             ILogger log)
         {
-            var container = _cosmosClient.GetDatabase("wuma").GetContainer("telemetry");
-
-            var iterator = container.GetItemQueryIterator<TelemetryStatistics>(new QueryDefinition("SELECT COUNT(c.type) AS count, c.type FROM c GROUP BY c.type"));
+            var iterator = _container.GetItemQueryIterator<TelemetryStatistics>(new QueryDefinition("SELECT COUNT(c.type) AS count, c.type FROM c GROUP BY c.type"));
                            
             var statistics = new Dictionary<string, int>();
             while (iterator.HasMoreResults)
