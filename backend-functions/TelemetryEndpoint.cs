@@ -7,29 +7,73 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
+using System.Linq;
 
 namespace Rahka.Wuma
 {
-    public static class TelemetryEndpoint
+    public class TelemetryEndpoint
     {
-        [FunctionName("TelemetryEndpoint")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
+        private readonly CosmosClient _cosmosClient;
+
+        public TelemetryEndpoint(CosmosClient cosmosClient)
+        {
+            _cosmosClient = cosmosClient;
+        }
+
+        [FunctionName("PutTelemetry")]
+        public IActionResult Put(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "telemetry")] HttpServerTelemetryModel telemetry,
+            [CosmosDB(
+                databaseName: "wuma",
+                collectionName: "telemetry",
+                ConnectionStringSetting = "CosmosDBConnectionString")] out CosmosServerTelemetryModel document,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            document = new CosmosServerTelemetryModel
+            {
+                Id = telemetry.Ip,
+                Name = telemetry.Name,
+                Type = telemetry.Type,
+                TTL = 3600 * 12 * 3
+            };
 
-            string name = req.Query["name"];
+            log.LogInformation($"Telemetry from {document.Type.ToString().ToLower()} server {document.Id} ({document.Name})");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            return new AcceptedResult();
+        }
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+        [FunctionName("GetTelemetryStatistics")]
+        public async Task<IActionResult> Statistics(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "telemetry")] HttpRequest request,
+            ILogger log)
+        {
+            var container = _cosmosClient.GetDatabase("wuma").GetContainer("telemetry");
 
-            return new OkObjectResult(responseMessage);
+            var iterator = container.GetItemQueryIterator<TelemetryStatistics>(new QueryDefinition("SELECT COUNT(c.type) AS count, c.type FROM c GROUP BY c.type"));
+                           
+            var statistics = new Dictionary<string, int>();
+            while (iterator.HasMoreResults)
+            {
+                var task = await iterator.ReadNextAsync();
+                foreach (var x in task)
+                {
+                    statistics[x.Type.ToString().ToLower()] = x.Count;
+                }           
+            }
+   
+            return new OkObjectResult(statistics);
+        }
+
+        public class TelemetryStatistics
+        {
+            [JsonProperty("type")]
+            public ServerType Type { get; set; }
+
+            [JsonProperty("count")]
+            public int Count { get; set; }
         }
     }
 }

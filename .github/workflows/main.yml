@@ -46,10 +46,3 @@ jobs:
           deploymentMode: Complete
           # Specifies the name of the resource group deployment to create.
           deploymentName: ${{ env.GITHUB_SHA }}
-
-      - uses: virgil246/secret-manage-action@v1.0
-        with:
-          repo: virgil246/secret-manage-action
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: 'FUNCTIONS_APP_NAME' 
-          value: ${{ steps.deploy_template.outputs.functionsAppName }} 

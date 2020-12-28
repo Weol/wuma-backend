@@ -116,12 +116,18 @@
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')),'2019-06-01').keys[0].value)]"
             },
             {
-                "name": "WEBSITE_CONTENTSHARE",
-                "value": "[toLower(parameters('functionsAppName'))]"
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(parameters('functionsAppName'))]"
             },
             {
               "name": "Project",
               "value": "backend-functions"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "CosmosDBConnectionString",
+              "connectionString": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosAccountName')), '2019-12-12').connectionStrings[0].connectionString]"
             }
           ]
         }
@@ -202,6 +208,7 @@
       "properties": {
         "resource": {
           "id": "[parameters('cosmosContainerName')]",
+          "defaultTtl": -1,
           "partitionKey": {
             "paths": [
               "/partitionKey"
@@ -215,11 +222,5 @@
         "options": {}
       }
     }
-  ],
-  "outputs": {
-    "functionsAppName": {
-      "type": "string",
-      "value": "[parameters('functionsAppName')]"
-    }
-  }
+  ]
 }
