@@ -38,7 +38,10 @@ namespace Rahka.Wuma
                 TTL = 3600 * 12 * 3
             };
 
-            await _container.UpsertItemAsync<CosmosServerTelemetryModel>(model);
+            if (model.Type == ServerType.Dedicated) 
+            {
+                await _container.UpsertItemAsync<CosmosServerTelemetryModel>(model);
+            }
 
             log.LogInformation($"Telemetry from {model.Type.ToString().ToLower()} server {model.Id} ({model.Name})");
 
