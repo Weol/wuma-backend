@@ -19,6 +19,11 @@ jobs:
     # The type of runner that the job will run on
     runs-on: windows-latest
 
+    #Enviroment
+    env:
+        RESOURCE_GROUP_LOCATION: "northeurope"
+        RESOURCE_GROUP_NAME: "wuma-backend"
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -29,6 +34,13 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: Azure/CLI@v1
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
+            echo "Azure resource (${{ env.RESOURCE_GROUP_NAME }}) group created in ${{ env.RESOURCE_GROUP_LOCATION }}"
           
       - id: deploy_template
         name: Deploy Azure Resource Manager (ARM) Template
@@ -39,9 +51,9 @@ jobs:
           # Provide the Id of the subscription which should be used, only required for resource Group or Subscription deployments.
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
           # Provide the target region, only required for management Group or Subscription deployments.
-          region: northeurope
+          region: ${{ env.RESOURCE_GROUP_LOCATION }}
           # Provide the name of a resource group, only required for resource Group deployments.
-          resourceGroupName: wuma-backend
+          resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
           # Specify the path or URL to the Azure Resorce Manager template.
           template: azuredeploy.json
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
