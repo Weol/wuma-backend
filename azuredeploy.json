@@ -156,7 +156,7 @@
       "kind": "web",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites/', parameters('functionsAppName'), 'web')]"
+        "[resourceId('Microsoft.Web/sites/', parameters('functionsAppName'))]"
       ],
       "tags": {
         "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('functionsAppName'))]": "Resource"
