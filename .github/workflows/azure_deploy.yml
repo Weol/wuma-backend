@@ -67,6 +67,8 @@ jobs:
     if: always()
     needs: deploy
     runs-on: ubuntu-latest
+    env:
+      DOTNET_VERSION: "2.2.8"
     steps: 
       - name: Get Functions publish profile
         id: publishprofile
@@ -77,10 +79,21 @@ jobs:
           resourceGroupName: wuma-backend
           appName: functions-backend
 
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: bash
+        run: |
+          dotnet build --configuration Release --output ./output
+
       - name: Deploy Functions
         uses: Azure/functions-action@v1
         with:
           app-name: functions-backend
+          package: ./output
           publish-profile: ${{ steps.publishprofile.outputs.profile }}
 
       - name: Reset Functions publish profile
