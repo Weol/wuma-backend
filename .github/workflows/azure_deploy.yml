@@ -45,7 +45,6 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - uses: Azure/CLI@v1
-        if: 
         with:
           inlineScript: |
             az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
@@ -62,4 +61,36 @@ jobs:
           template: azuredeploy.json
           deploymentMode: Complete
           deploymentName: ${{ env.GITHUB_SHA }}
-        
+          parameters: functionsAppName=functions-backend
+  push:
+    name: Push to Functions
+    if: always()
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Get Functions publish profile
+        id: publishprofile
+        uses: aliencube/publish-profile-actions@v1
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        with:
+          resourceGroupName: wuma-backend
+          appName: functions-backend
+
+      - name: Deploy Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: functions-backend
+          package: published
+          publish-profile: ${{ steps.publishprofile.outputs.profile }}
+
+      - name: Reset Functions publish profile
+        uses: aliencube/publish-profile-actions@v1
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        with:
+          resourceGroupName: wuma-backend
+          appName: functions-backend
+          reset: true
+
+          
