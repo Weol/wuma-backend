@@ -70,6 +70,9 @@ jobs:
     env:
       DOTNET_VERSION: "2.2.402"
     steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Get Functions publish profile
         id: publishprofile
         uses: aliencube/publish-profile-actions@v1
