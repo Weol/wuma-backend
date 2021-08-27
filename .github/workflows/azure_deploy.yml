@@ -68,7 +68,7 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     env:
-      DOTNET_VERSION: "3.11.x"
+      DOTNET_VERSION: "3.1.x"
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v2
