@@ -19,7 +19,7 @@ jobs:
       - name: Check modified files
         id: check_files
         run: |
-          changed=`git diff --name-only HEAD HEAD~1 | grep "azuredeploy.json"`
+          changed=`git diff --name-only HEAD HEAD~1 | grep "azuredeploy.json" || true`
 
           if [[ $changed = "azuredeploy.json" ]]; then
             echo "::set-output name=run_job::true"
@@ -68,7 +68,7 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     env:
-      DOTNET_VERSION: "2.2.8"
+      DOTNET_VERSION: "2.2.402"
     steps: 
       - name: Get Functions publish profile
         id: publishprofile
