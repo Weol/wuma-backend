@@ -6,7 +6,7 @@
       "defaultValue": "[resourceGroup().location]",
       "type": "string",
       "metadata": {
-        "description": "The location for resources"
+        "description": "The location for all resources"
       }
     },
     "storageName": {
