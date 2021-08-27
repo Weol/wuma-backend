@@ -87,13 +87,15 @@ jobs:
       - name: 'Resolve Project Dependencies Using Dotnet'
         shell: bash
         run: |
+          pushd './backend-functions'
           dotnet build --configuration Release --output ./output
+          popd
 
       - name: Deploy Functions
         uses: Azure/functions-action@v1
         with:
           app-name: functions-backend
-          package: ./output
+          package: ./backend-functions/output
           publish-profile: ${{ steps.publishprofile.outputs.profile }}
 
       - name: Reset Functions publish profile
